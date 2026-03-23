@@ -1,0 +1,68 @@
+name: Release Plugin
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "plugin-opensub-main/**"
+      - ".github/workflows/release-plugin.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: plugin-opensub-main/package-lock.json
+
+      - name: Install dependencies
+        working-directory: plugin-opensub-main
+        run: npm ci
+
+      - name: Build plugin
+        working-directory: plugin-opensub-main
+        run: npm run build
+
+      - name: Read plugin version
+        id: version
+        working-directory: plugin-opensub-main
+        run: echo "value=$(node -p 'require(\"./Info.json\").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Create release package
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          PACKAGE_ROOT="plugin-opensub-main/release/AI Subtitle Studio.iinaplugin"
+
+          rm -rf "plugin-opensub-main/release"
+          mkdir -p "${PACKAGE_ROOT}/dist"
+
+          cp plugin-opensub-main/Info.json "${PACKAGE_ROOT}/"
+          cp plugin-opensub-main/pref.html "${PACKAGE_ROOT}/"
+          cp plugin-opensub-main/sidebar.html "${PACKAGE_ROOT}/"
+          cp plugin-opensub-main/README.md "${PACKAGE_ROOT}/"
+          cp plugin-opensub-main/dist/index.js "${PACKAGE_ROOT}/dist/"
+
+          cd plugin-opensub-main/release
+          zip -r -q "AI-Subtitle-Studio-${VERSION}.iinaplgz" "AI Subtitle Studio.iinaplugin"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: plugin-v${{ steps.version.outputs.value }}-${{ github.run_number }}
+          name: AI Subtitle Studio v${{ steps.version.outputs.value }} build ${{ github.run_number }}
+          generate_release_notes: true
+          prerelease: true
+          files: plugin-opensub-main/release/*.iinaplgz
