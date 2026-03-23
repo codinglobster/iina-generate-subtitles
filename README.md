@@ -1,4 +1,4 @@
-# AI Subtitle Studio
+# Generate Subtitles
 
 IINA plugin that extracts the current video's audio, sends it to Groq Whisper,
 and loads the generated SRT subtitle automatically.

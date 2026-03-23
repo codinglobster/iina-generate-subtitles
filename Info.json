@@ -1,21 +1,21 @@
 {
-  "name": "AI Subtitle Studio",
-  "identifier": "io.iina.ai-subtitle-studio",
+  "name": "Generate Subtitles",
+  "identifier": "io.iina.generate-subtitles",
   "version": "0.0.2",
   "description": "IINA plugin for Groq Whisper subtitle generation",
   "author": {
-    "name": "AI Subtitle Studio"
+    "name": "Generate Subtitles"
   },
   "entry": "dist/index.js",
   "permissions": ["show-osd", "file-system", "network-request"],
   "allowedDomains": ["*"],
   "sidebarTab": {
-    "name": "AI Subtitle"
+    "name": "Subtitles"
   },
   "subtitleProviders": [
     {
-      "id": "ai-subtitle",
-      "name": "AI Subtitle Studio"
+      "id": "generate-subtitles",
+      "name": "Generate Subtitles"
     }
   ],
   "preferencesPage": "pref.html",

@@ -2,9 +2,9 @@ name: Release Plugin
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  PLUGIN_NAME: AI Subtitle Studio
-  PLUGIN_SLUG: ai-subtitle-studio
-  PLUGIN_IDENTIFIER: io.iina.ai-subtitle-studio
+  PLUGIN_NAME: Generate Subtitles
+  PLUGIN_SLUG: generate-subtitles
+  PLUGIN_IDENTIFIER: io.iina.generate-subtitles
 
 on:
   push:

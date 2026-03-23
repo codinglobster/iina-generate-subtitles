@@ -1,5 +1,5 @@
 {
-  "name": "iina-ai-subtitle-studio",
+  "name": "iina-generate-subtitles",
   "version": "0.0.2",
   "description": "IINA plugin for Groq Whisper subtitle generation",
   "main": "dist/index.js",
