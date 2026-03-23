@@ -1,7 +1,7 @@
 {
   "name": "Generate Subtitles",
   "identifier": "io.iina.generate-subtitles",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "IINA plugin for Groq Whisper subtitle generation",
   "author": {
     "name": "Generate Subtitles"
