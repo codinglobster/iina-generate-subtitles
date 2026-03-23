@@ -25,6 +25,11 @@ menu.addItem(
 event.on("iina.window-loaded", () => {
   sidebar.loadFile("sidebar.html");
 
+  const updateProgress = (message) => {
+    core.osd(message);
+    sidebar.postMessage("ai-progress", { message });
+  };
+
   sidebar.onMessage("ai-sidebar-ready", () => {
     console.log("AI sidebar ready");
   });
@@ -35,8 +40,7 @@ event.on("iina.window-loaded", () => {
 
   sidebar.onMessage("ai-transcribe", async () => {
     try {
-      core.osd("Generating subtitles…");
-      const result = await transcribeCurrentMedia();
+      const result = await transcribeCurrentMedia(updateProgress);
       core.osd("AI subtitles loaded");
       sidebar.postMessage("ai-result", { ok: true, result });
     } catch (error) {

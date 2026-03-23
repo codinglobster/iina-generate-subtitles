@@ -135,6 +135,10 @@
       }
     });
 
+    iina.onMessage("ai-progress", ({ message }) => {
+      setStatus(message || "Working...");
+    });
+
     iina.onMessage("ai-filename", ({ name }) => {
       setStatus("Current file");
       setLog(name || "");

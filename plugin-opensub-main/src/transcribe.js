@@ -17,6 +17,8 @@ const SUPPORTED_DIRECT_UPLOAD_EXTENSIONS = new Set([
   "webm",
 ]);
 
+function noop() {}
+
 function getPreference(key, fallback = "") {
   const value = preferences.get(key);
   return typeof value === "string" ? value.trim() : fallback;
@@ -33,6 +35,13 @@ function sanitizeBasename(name) {
 function getFileExtension(path) {
   const match = path.match(/\.([a-zA-Z0-9]+)$/);
   return match ? match[1].toLowerCase() : "";
+}
+
+function buildSidecarSubtitlePath(sourcePath) {
+  if (/\.[^./\\]+$/.test(sourcePath)) {
+    return sourcePath.replace(/\.[^./\\]+$/, ".srt");
+  }
+  return `${sourcePath}.srt`;
 }
 
 function decodeFileURL(url) {
@@ -194,12 +203,13 @@ function resolveInputSource() {
   return path;
 }
 
-export async function transcribeCurrentMedia() {
+export async function transcribeCurrentMedia(onProgress = noop) {
   const apiKey = getPreference("groq_api_key");
   if (!apiKey) {
     throw new Error("Groq API key is missing. Set it in plugin preferences.");
   }
 
+  onProgress("Preparing transcription");
   const model = getPreference("whisper_model", DEFAULT_MODEL) || DEFAULT_MODEL;
   const language = getPreference("transcription_language");
   const prompt = getPreference("transcription_prompt");
@@ -216,11 +226,13 @@ export async function transcribeCurrentMedia() {
     !canDirectUpload ||
     FFMPEG_CANDIDATES.some((candidate) => utils.fileInPath(candidate))
   ) {
+    onProgress("Extracting audio");
     extractedAudioPseudoPath = `@tmp/${baseName}.${stamp}.m4a`;
     await extractAudio(sourcePath, extractedAudioPseudoPath);
     uploadPath = utils.resolvePath(extractedAudioPseudoPath);
   }
 
+  onProgress("Uploading audio to Groq");
   const response = await requestTranscription(uploadPath, {
     apiKey,
     model,
@@ -232,14 +244,17 @@ export async function transcribeCurrentMedia() {
     throw new Error("Groq returned no timed segments, cannot build SRT.");
   }
 
+  onProgress("Generating SRT");
   const srtContent = segmentsToSrt(response.segments);
   if (!srtContent.trim()) {
     throw new Error("Generated SRT is empty.");
   }
 
-  const srtPseudoPath = `@tmp/${baseName}.${stamp}.srt`;
-  file.write(srtPseudoPath, srtContent);
-  const srtPath = utils.resolvePath(srtPseudoPath);
+  onProgress("Saving subtitle file");
+  const srtPath = buildSidecarSubtitlePath(sourcePath);
+  file.write(srtPath, srtContent);
+
+  onProgress("Loading subtitle into player");
   core.subtitle.loadTrack(srtPath);
 
   if (extractedAudioPseudoPath && file.exists(extractedAudioPseudoPath)) {
