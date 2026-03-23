@@ -1,7 +1,7 @@
 {
   "name": "AI Subtitle Studio",
   "identifier": "io.iina.ai-subtitle-studio",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "IINA plugin for Groq Whisper subtitle generation",
   "author": {
     "name": "AI Subtitle Studio"
